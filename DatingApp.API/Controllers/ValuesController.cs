@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DatingApp.Data;
+using DatingApp.API.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Controllers
 {
     // http://localhost:5000/api/values
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class ValuesController : ControllerBase // Controler tem view support; "Base" não, e faremos assim pq as ViewResult virão do Angular
     {
         private readonly DataContext _context;
 
@@ -21,15 +23,15 @@ namespace DatingApp.Controllers
         }
 
         // GET api/values
-        [HttpGet]
-        //public ActionResult<IEnumerable<string>> Get()
-        public async Task<IActionResult> GetValues()
+        [HttpGet]        
+        public async Task<IActionResult> GetValues()  // //public ActionResult<IEnumerable<string>> Get()
         {
             var values = await _context.Values.ToListAsync();
             return Ok(values);
         }
 
         // GET api/values/5
+        [AllowAnonymous] // Elimina necessidade de autenticação!
         [HttpGet("{id}")]
         public async Task<IActionResult> GetValue(int id)
         {
