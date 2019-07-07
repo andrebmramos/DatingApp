@@ -13,7 +13,7 @@ namespace DatingApp.API.Data
 
         public AuthRepository(DataContext context)
         {
-            _context = context;    
+            _context = context;
         }
 
 
