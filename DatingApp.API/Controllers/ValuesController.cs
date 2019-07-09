@@ -23,6 +23,7 @@ namespace DatingApp.Controllers
         }
 
         // GET api/values
+        [AllowAnonymous] // Elimina necessidade de autenticação!
         [HttpGet]        
         public async Task<IActionResult> GetValues()  // //public ActionResult<IEnumerable<string>> Get()
         {

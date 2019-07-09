@@ -66,7 +66,7 @@ namespace DatingApp.API
             }
 
             // app.UseHttpsRedirection();
-            app.UseCors(action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); // Política para "permitir recursos de localhost:4200 e 5000 conversarem"
             app.UseAuthentication(); // Controllers com atributo [Authorize] agora terão autenticação
             app.UseMvc(); // Framework que usamos
         }
