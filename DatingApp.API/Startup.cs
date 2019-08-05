@@ -18,7 +18,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using DatingApp.API.Helpers;
 
 namespace DatingApp.API
 {
@@ -57,10 +60,30 @@ namespace DatingApp.API
         {
             if (env.IsDevelopment())
             {
+                // Quando em Development mode, a linha abaixo faz a aplicação gerar uma
+                // página de erro quando alguma exceção acontece
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                // Quando em Production mode, a página de erro não é legal para o usuário final.
+                // Por outro lado, try cattch em todos os lugares não é legal.
+                // Então procedemos de outra forma criando um handler global para os erros
+                // com algumas configurações convenientes
+                app.UseExceptionHandler(builder => { // builder : IApplicationBuilder
+                    builder.Run(async context =>     // Run é extension method, vem de Microsoft.AspNetCore.Builder
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; // System.Net
+
+                        var error = context.Features.Get<IExceptionHandlerFeature>(); // Microsoft.AspNetCore.Dignostics
+                        if (error != null)
+                        {
+                            context.Response.AddApplicationError(error.Error.Message);
+                            await context.Response.WriteAsync(error.Error.Message); // Microsoft.AspNetCore.Http (extension method WriteAsync)
+                        }
+                    });
+                });
+
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 // app.UseHsts();
             }

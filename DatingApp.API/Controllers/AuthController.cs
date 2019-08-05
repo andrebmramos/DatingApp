@@ -53,7 +53,10 @@ namespace DatingApp.API.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userDto)  // Se naõ tivesse[ApiContoller], teria de acrescentar [FromBody] para ajudar compilador
-        {
+        {            
+            // Linha de teste
+            // throw new Exception("Computer says no!");
+
             // Uso repositório para logar e confiro imediatamente se obtive um usuário
             var userFromRepo = await _repo.Login(userDto.Username.ToLower(), userDto.Password);
             if (userFromRepo == null)
@@ -92,7 +95,7 @@ namespace DatingApp.API.Controllers
                 token = tokenHandler.WriteToken(token)
             });
 
-        }
+        }            
 
     }
 
