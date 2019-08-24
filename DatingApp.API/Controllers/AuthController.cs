@@ -30,7 +30,7 @@ namespace DatingApp.API.Controllers
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userDto)  // Se naõ tivesse[ApíContoller], teria de acrescentar [FromBody] para ajudar compilador
+        public async Task<IActionResult> Register(UserForRegisterDto userDto)  // Se naõ tivesse[ApiContoller], teria de acrescentar [FromBody] para ajudar compilador
         {
             // Validação por meio de [ApiController]
             // De modo que não preciso fazer

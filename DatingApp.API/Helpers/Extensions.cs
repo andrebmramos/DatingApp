@@ -20,5 +20,15 @@ namespace DatingApp.API.Helpers
             response.Headers.Add("Access-Control-Expose-Headers", "Application-Error");
             response.Headers.Add("Access-Control-Allow-Origin", "*");
         }
+
+
+        public static int CalculateAge(this DateTime date)
+        {
+            var age = DateTime.Today.Year - date.Year; // primeiro obtenho diferença de anos
+            if (date.AddYears(age) > DateTime.Today)   // se data + anos > data atual é pq ainda não fez aniversário este ano ;-)
+                age--;
+            return age;
+        }
+
     }
 }

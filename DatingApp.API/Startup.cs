@@ -22,6 +22,7 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using DatingApp.API.Helpers;
+using AutoMapper;
 
 namespace DatingApp.API
 {
@@ -38,9 +39,18 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                    .AddJsonOptions(opt =>
+                    {
+                       opt.SerializerSettings.ReferenceLoopHandling =
+                           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    });  // Isso foi para evitar erro de referência por conta da
+                         // propriedade de nagevação Photos
             services.AddCors();
+            services.AddAutoMapper();
+            services.AddTransient<Seed>();
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IDatingRepository, DatingRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Habilitar Authentication Middleware
                 .AddJwtBearer(options => 
                 {
@@ -56,7 +66,7 @@ namespace DatingApp.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Seed seeder)
         {
             if (env.IsDevelopment())
             {
@@ -89,6 +99,7 @@ namespace DatingApp.API
             }
 
             // app.UseHttpsRedirection();
+            // seeder.SeedUsers(); // Rodar "só quando necessário"
             app.UseCors(action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); // Política para "permitir recursos de localhost:4200 e 5000 conversarem"
             app.UseAuthentication(); // Controllers com atributo [Authorize] agora terão autenticação
             app.UseMvc(); // Framework que usamos

@@ -9,6 +9,11 @@ declare let alertify: any; // Para evitar ficar mostrando erros, uma vez que
                            // e para não ter que importar cada função, como fiz acima com success
                            // só para exemplificar
 
+
+// import * as alertify from 'node_modules/alertifyjs/build/alertify.min.js'; // mesmo efeito da declaração acima, só que fiz o
+                                                                              // import aqui, tornando desprezível a importação na
+                                                                              // seção scripts do angular.json
+
 @Injectable({
   providedIn: 'root'
 })
