@@ -1,0 +1,45 @@
+/* Imagem dentro de um card no momento de hover */
+.card:hover img {
+    transform: scale(1.2, 1.2);
+    transition-duration: 500ms;
+    transition-timing-function: ease-out;
+    opacity: 0.85;
+}
+
+
+/* Ao sair da imagem, volta devagar ao tamanho normal */
+.card img {
+    transform: scale(1.0, 1.0);
+    transition-duration: 500ms;
+    transition-timing-function: ease-out; 
+}
+
+
+/* Imagem ampliada não excede tamanho da div */
+.card-img-wrapper {
+    overflow: hidden;
+    position: relative; /* Para poder posicionar os botões absolutamente */
+}
+
+
+/* Ícones qu quero que apareçam sobre a imagem */
+.member-icons {
+    position: absolute; /* Será posicionado contra o card-img-wrapper */
+    bottom: -30%;       /* Posição inicial = escondido */
+    left: 0;
+    right: 0;
+    margin-left: auto;  /* Centralização */
+    margin-right: auto;
+    opacity: 0;         /* Invisível */
+}
+
+
+.card-img-wrapper:hover .member-icons {
+    bottom: 0;   /* Ícone vem para cima */
+    opacity: 1;  /* Ícone aparece */
+}
+
+
+.animate {
+    transition: all 0.3s ease-in-out;
+}
