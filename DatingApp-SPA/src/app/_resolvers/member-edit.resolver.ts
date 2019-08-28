@@ -7,19 +7,26 @@ import { User } from '../_models/User';
 import { AlertifyService } from '../_services/alertify.service'
 import { UserService } from '../_services/user.service';
 import { catchError } from 'rxjs/operators';
+import { AuthService } from '../_services/auth.service';
 
 
 
 
 @Injectable()
-export class MemberDetailResolver implements Resolve<User> {
+export class MemberEditResolver implements Resolve<User> {
 
-    constructor(private userService: UserService, private route: Router, private alertify: AlertifyService) {}
+    constructor(private userService: UserService,
+                private route: Router,
+                private alertify: AlertifyService,
+                private authService: AuthService) {}
 
     resolve(route: ActivatedRouteSnapshot, state: import('@angular/router').RouterStateSnapshot): Observable<User> {
-        return this.userService.getUser(route.params['id']).pipe(
+        // no MemberDetailResolver usávamos o route.params['id']. Aqui, vamos extrair id do token
+        const id = this.authService.decodedToken.nameid;
+        // console.log('Buscando usuário: ' + id);
+        return this.userService.getUser(id).pipe(
             catchError( error => {
-                this.alertify.error('Problema na obtenção dos dados');
+                this.alertify.error('Problema na obtenção dos dados do usuário');
                 this.route.navigate(['/members']);
                 return of(null);
             })
