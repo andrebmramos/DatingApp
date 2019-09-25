@@ -14,9 +14,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace DatingApp.API.Controllers
 {
 
+    // Aula 74, Seção 8: Extending the API
+
     [Authorize]
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]    
     public class UsersController : ControllerBase
     {
 
@@ -34,7 +36,9 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> GetUsers()
         {
             var users = await _repo.GetUsers();
-            var usersToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users);
+            // return Ok(users); // PROBLEMA! Isso retornará os objetos com SENHAS e outras coisas que não quero visíveis,
+                                 // por isso mapearemos para um Dto só com aquilo que desejamos
+            var usersToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users); // Dto mais básico, para listagem de vários users
             return Ok(usersToReturn);
         }
 
@@ -43,7 +47,7 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> GetUser(int id)
         {
             var user = await _repo.GetUser(id);
-            var userToReturn = _mapper.Map<UserForDetailedDto>(user);
+            var userToReturn = _mapper.Map<UserForDetailedDto>(user); // Dto mais detalhado
             return Ok(userToReturn);
         }
         
@@ -51,7 +55,10 @@ namespace DatingApp.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UserForUpdateDto userForUpdateDto)
         {
+            // AULA 99, Seção 10: Updating Resources
+
             // Verificar se Id confere como do usuário esperado
+            // User é propriedade herdade de ControllerBase
             if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 

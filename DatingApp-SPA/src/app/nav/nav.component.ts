@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 import { Router } from '@angular/router';
+import { UserToLogin } from '../_models/userToLogin';
 
 @Component({
   selector: 'app-nav',
@@ -9,23 +10,29 @@ import { Router } from '@angular/router';
   styleUrls: ['./nav.component.css']
 })
 export class NavComponent implements OnInit {
-  model: any = {};  // <==
+  // model: any = {};      // Funciona, mas acho tosco
+  // model: UserToLogin;   // Cria problema com undefineds no html, então vamos inicializar
+  model: UserToLogin = {
+    username: '',
+    password: '',
+  };
+
+  photoUrl: string;
+
 
   constructor(public authService: AuthService,
               private alertify: AlertifyService,
               private router: Router) { }
 
   ngOnInit() {
+    this.authService.currentPhotoUrl.subscribe(next => this.photoUrl = next);
   }
 
-  login() {
-    console.log(this.model);
+  login() { // aula 41. Injecting the Angular services in our Components
+    // console.log(this.model); // Cuidado! Vai mostrar senha no console!
     this.authService.login(this.model).subscribe( next => {
-      // console.log('Logged in successfully');
       this.alertify.success('Logged in successfully');
     }, error => {
-      // console.log('Failed to login');
-      // console.log(error);
       this.alertify.error(error);
     }, () => {
       this.router.navigate(['/members']);
@@ -49,9 +56,18 @@ export class NavComponent implements OnInit {
 
 
   logout() {
+    // remove da armazenagem do app
     localStorage.removeItem('token');
-    // console.log('logged out');
+    localStorage.removeItem('user');
+
+    // remove de AuthService
+    this.authService.decodedToken = null;
+    this.authService.currentUser = null;
+
+    // notifica
     this.alertify.message('logged out');
+
+    // navega para página inicial
     this.router.navigate(['/home']);
   }
 

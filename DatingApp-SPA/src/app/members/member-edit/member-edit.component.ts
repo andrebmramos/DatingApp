@@ -17,6 +17,7 @@ import { AuthService } from 'src/app/_services/auth.service';
 export class MemberEditComponent implements OnInit {
 
   user: User;
+  photoUrl: string;
 
   // Atenção, no ANGULAR V8 exige assim:  @ViewChild('editForm', { static: true }) editFormAngular8: NgForm;
   @ViewChild('editForm') editForm: NgForm; // permite "enxergar" o formulário aqui no código ts
@@ -38,6 +39,7 @@ export class MemberEditComponent implements OnInit {
     this.route.data.subscribe( data => {
       this.user = data['user'];
     });
+    this.authService.currentPhotoUrl.subscribe(next => this.photoUrl = next);
   }
 
   updateUser() {
@@ -48,6 +50,10 @@ export class MemberEditComponent implements OnInit {
     }, error => {
       this.alertify.error(error);
     });
+  }
+
+  updateMainPhoto(photoUrl) {
+    this.user.photoUrl = photoUrl;
   }
 
 }

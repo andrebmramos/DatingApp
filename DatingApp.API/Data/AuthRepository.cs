@@ -19,24 +19,29 @@ namespace DatingApp.API.Data
 
         public async Task<User> Login(string username, string password)
         {
-            
-            var user = await _context.Users.FirstOrDefaultAsync(us => us.Username==username);
+            // Estamos no contexto do repositório [AuthRepository]. O login no contexto
+            // do controlador [AuthController] vai lidar com Tokens
+            var user = await _context.Users
+                .Include(u => u.Photos)
+                .FirstOrDefaultAsync(us => us.Username==username);
 
             // Teste para usuário não encontrado
             if (user == null) 
-                return null; // Controler entenderá null como erro 401 Unauthorized
+                return null; // Controller entenderá null como erro 401 Unauthorized
 
             // Testa da senha
             if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt)==false)
-                return null;
+                return null; // sem detalhes!
             
             // Tudo válido!
             return user;     
         }
 
         private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {            
-            using(var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt)) 
+        {
+            // Inicializamos o HMACSHA512 com a semente aleatória que foi gerada no ato de registrar
+            // o usuário
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt)) 
             {                
                 byte[] hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 for (int i=0; i< hash.Length; i++)
@@ -51,8 +56,8 @@ namespace DatingApp.API.Data
             byte[] passwordHash, passwordSalt;
 
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
+            user.PasswordHash = passwordHash; // guardo o hash da senha
+            user.PasswordSalt = passwordSalt; // guardo a semente aleatória como salt
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -62,7 +67,8 @@ namespace DatingApp.API.Data
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            using(var hmac = new System.Security.Cryptography.HMACSHA512()) 
+            // Usaremos HMACSHA512. Trata-se de um disposable que gera uma semente aleatória que usaremos como salt
+            using (var hmac = new System.Security.Cryptography.HMACSHA512()) 
             {
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));

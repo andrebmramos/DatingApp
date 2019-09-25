@@ -12,14 +12,14 @@ namespace DatingApp.API.Helpers
     {
         public AutoMapperProfiles()
         {
-            CreateMap<User, UserForListDto>()
+            CreateMap<User, UserForListDto>() // <TSource, TDestination>
                 .ForMember(destination => destination.PhotoUrl, options =>
                 {
-                    options.MapFrom(src => src.Photos.FirstOrDefault(photo => photo.IsMain).Url);
+                    options.MapFrom(src => src.Photos.FirstOrDefault(photo => photo.IsMain).Url);  // obtive a foto principal e retornei url dela
                 })
                 .ForMember(destination => destination.Age, options =>
                 {
-                    options.ResolveUsing(d => d.DateOfBirth.CalculateAge());
+                    options.MapFrom(src => src.DateOfBirth.CalculateAge());
                 });
 
             CreateMap<User, UserForDetailedDto>()
@@ -28,12 +28,18 @@ namespace DatingApp.API.Helpers
                 })
                 .ForMember(destination => destination.Age, options =>
                 {
-                    options.ResolveUsing(d => d.DateOfBirth.CalculateAge());
+                    options.MapFrom(src => src.DateOfBirth.CalculateAge());
                 });
 
             CreateMap<UserForUpdateDto, User>();
 
             CreateMap<Photo, PhotosForDetailedDto>();
+
+            CreateMap<Photo, PhotoForReturnDto>();
+
+            CreateMap<PhotoForCreationDto, Photo>();
+
+
         }
 
     }

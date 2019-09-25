@@ -3,25 +3,53 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
+import { User } from '../_models/User';
+import { UserToLogin } from '../_models/userToLogin';
+import { BehaviorSubject } from 'rxjs';
+import { DecodedToken } from '../_models/decodedToken';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   baseUrl = environment.apiUrl + 'auth/';
-  jwtHelper = new JwtHelperService();
-  decodedToken: any;
 
-  constructor(private http: HttpClient) { }
+  // jwtHelper = new JwtHelperService(); // Injetei no construtor
+  // decodedToken: any; // Melhorei com interface
 
-  login(model: any) {
+  // Esses são atalhos para "coisas" que quero enxergar de outros pontos da aplicação
+  decodedToken: DecodedToken;
+  currentUser: User;
+
+  // Any to any communication fazedno uso do BehaviorSubject,que é um cara que pode tanto
+  // receber alterações como gerar um Observável
+  photoUrl = new BehaviorSubject<string>('../../assets/user.png'); // Aula 117. Using BehaviorSubject to add any to any communication
+  currentPhotoUrl = this.photoUrl.asObservable(); // eis o observável
+
+
+
+  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) { }
+
+
+  changeMemberPhoto(newPhotoUrl: string) { // Chamarei esse método para atualizar o BehaviorSubject que indica a foto
+    this.photoUrl.next(newPhotoUrl); // Método next simplesmente atualiza o valor do BehaviorSubject
+  }
+
+
+  login(model: UserToLogin) {  // aula 40. Introduction to Angular Services
     return this.http.post(this.baseUrl + 'login', model)
       .pipe(
         map((response: any) => {
           const user = response;
           if (user) {
+            // armazenagem da aplicação
             localStorage.setItem('token', user.token);
+            localStorage.setItem('user', JSON.stringify(user.user));
+            // armazenagem local
             this.decodedToken = this.jwtHelper.decodeToken(user.token);
+            this.currentUser = user.user;
+            // log
+            this.changeMemberPhoto(this.currentUser.photoUrl);
             console.log(this.decodedToken);
           }
         })

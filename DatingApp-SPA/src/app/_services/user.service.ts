@@ -38,4 +38,13 @@ export class UserService {
     return this.http.put(this.baseUrl + 'users/' + id, user);
   }
 
+  setMainPhoto(userId: number, id: number) {
+    return this.http.post(this.baseUrl + 'users/' + userId + '/photos/' + id + '/setMain', {});
+        // objeto vazio só para satistazer método post
+  }
+
+  deletePhoto(userId: number, id: number) { // Aula 118, esse método será usado no photo-editor.component.ts
+    return this.http.delete(this.baseUrl + 'users/' + userId + '/photos/' + id);
+  }
+
 }

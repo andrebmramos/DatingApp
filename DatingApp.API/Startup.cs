@@ -39,30 +39,52 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+
+            services.AddMvc()
+                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                     .AddJsonOptions(opt =>
                     {
-                       opt.SerializerSettings.ReferenceLoopHandling =
-                           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                    });  // Isso foi para evitar erro de referência por conta da
-                         // propriedade de nagevação Photos
+                        opt.SerializerSettings.ReferenceLoopHandling =
+                            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    });  // Sobre AddJsonOptions: Aula 74, Seção 8: Extending the API, aproximadamente aos 8 
+                         // minutos explica que o fato de termos a propriedade de navegação user dentro da 
+                         // foto do user causa self referencing loop. A função GetUsers de UsersController
+                         // retorna "ok", porém o conteúdo vem com erro. Por isso fizemos essa configuração,
+                         // de modo ignorar a recorrência (VER ERRO NO TERMINAL da API)
+                         // PArece que haverá tratamento melhor disso adiante
+
             services.AddCors();
-            services.AddAutoMapper();
+
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+                    // O conteúdo da seção em appsettings.json será refletido nos valores das propriedades declaradas na
+                    // classe CloudinarySettings. Depois eu injeto no construtor de PhotosController da seguinte forma:   
+                    // IOptions<CloudinarySettings> cloudinaryConfig
+                    // ... e recupero os valores assim:
+                    // cloudinaryConfig.Value.CloudName;    etc.
+
+            services.AddAutoMapper(typeof(DatingRepository).Assembly);
+                    // Preciso informar ao automapper em qual assembly estarão os profiles
+                    // Faço isso "puxando" o tipo de qualquer classe que estará no Assembly
+                    // (no caso, usei DatingRepository)
+
             services.AddTransient<Seed>();
+
             services.AddScoped<IAuthRepository, AuthRepository>();
+
             services.AddScoped<IDatingRepository, DatingRepository>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Habilitar Authentication Middleware
-                .AddJwtBearer(options => 
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters 
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Habilitar Authentication Middleware (Aula 34, sec. 3, Using the Authentication middleware)
+                    .AddJwtBearer(options => 
                     {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey( Encoding.ASCII
-                            .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
-                        ValidateIssuer = false,  // localhost
-                        ValidateAudience = false // localhost
-                    };
-                });
+                        options.TokenValidationParameters = new TokenValidationParameters 
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey( Encoding.ASCII
+                                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                            ValidateIssuer = false,  // localhost
+                            ValidateAudience = false // localhost
+                        };
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,7 +99,7 @@ namespace DatingApp.API
             else
             {
                 // Quando em Production mode, a página de erro não é legal para o usuário final.
-                // Por outro lado, try cattch em todos os lugares não é legal.
+                // Por outro lado, try catch em todos os lugares não é legal.
                 // Então procedemos de outra forma criando um handler global para os erros
                 // com algumas configurações convenientes
                 app.UseExceptionHandler(builder => { // builder : IApplicationBuilder
