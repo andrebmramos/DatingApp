@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.DTOs;
+using DatingApp.API.Helpers;
 using DatingApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace DatingApp.API.Controllers
 
     // Aula 74, Seção 8: Extending the API
 
+    [ServiceFilter(typeof(LogUserActivity))] // Aula 135, toda vez que os métodos são usados o filtro será chamado atualizando LastActive
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]    

@@ -8,7 +8,10 @@ import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgxGalleryModule } from 'ngx-gallery';
 import { FileUploadModule } from 'ng2-file-upload';
-// 3 linhs para fazer locale do DatePicker
+import { TimeAgoPipe } from 'time-ago-pipe';
+
+// 3 linhas aqui mais algumas no ctor para fazer global do DatePicker
+// (não estão em uso, pois estou refazendo essa configuração no register.component.ts)
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { ptBrLocale } from 'ngx-bootstrap/locale';
 defineLocale('ptbr', ptBrLocale);
@@ -56,7 +59,8 @@ export function tokenGetter() {
       MemberEditComponent,
       ListsComponent,
       MessagesComponent,
-      PhotoEditorComponent
+      PhotoEditorComponent,
+      TimeAgoPipe
    ],
    imports: [
       BrowserModule,
