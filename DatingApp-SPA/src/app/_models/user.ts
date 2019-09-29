@@ -18,5 +18,6 @@ export interface User {
     introduction?: string;
     lookingFor?: string;
     photos?: Photo[];
+    password?: string; // auxiliar para uso em funcionalidade Register (preciso fornecer senha)
 
 }

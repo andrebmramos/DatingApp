@@ -32,24 +32,28 @@ namespace DatingApp.API.Controllers
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userDto) // Cliente mandará nome e senha num objeto JSON no body da mensagem. Usaremos Dtos com esse propósito
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto) // Cliente mandará nome e senha num objeto JSON no body da mensagem. Usaremos Dtos com esse propósito
                                                                               // No Dto faremos validações com atributos [Required], etc.
-                                                                              // Se naõ tivesse[ApiContoller], teria de acrescentar [FromBody] para ajudar compilador
+                                                                              // Se não tivesse[ApiContoller], teria de acrescentar [FromBody] para ajudar compilador
         {
             // Validação por meio de [ApiController]
             // De modo que não preciso fazer
             // if (!ModelState.IsValid) {} /// bla bla bla
 
-            userDto.Username = userDto.Username.ToLower();
+            userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
 
-            if (await _repo.UserExists(userDto.Username))
+            if (await _repo.UserExists(userForRegisterDto.Username))
                 return BadRequest("Usuário já existe");
 
-            var userToCreate = new User { Username = userDto.Username };
+            var userToCreate = _mapper.Map<User>(userForRegisterDto);  // new User { Username = userForRegisterDto.Username };
 
-            var createdUser = await _repo.Register(userToCreate, userDto.Password);
+            var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
 
-            return StatusCode(201); // Provisório - depois, mudar para CreatedAtRoute(...), que indicará "um caminho" para obter o objeto criado
+            // return StatusCode(201); // Provisório - depois, mudar para CreatedAtRoute(...), que indicará "um caminho" para obter o objeto criado
+
+            var userToReturn = _mapper.Map<UserForDetailedDto>(createdUser); // Mapeamento seguro (sem senhas) para retornar no CreatedAtRoute
+
+            return CreatedAtRoute("GetUser", new { controller = "Users", id = createdUser.Id}, userToReturn);
 
         }
 

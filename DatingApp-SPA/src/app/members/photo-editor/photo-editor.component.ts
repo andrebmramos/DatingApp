@@ -61,7 +61,13 @@ export class PhotoEditorComponent implements OnInit {
           isMain: res.isMain
         };
         this.photos.push(photo);
-        // this.photos.push(res);
+        if (photo.isMain) { // aula 131., pequeno ajuste (copiando linhas da aula 17) para ajustar a foto principal
+                            // caso a foto que acabei de subir seja a principal (o que ocorre quando é a primeira foto,
+                            // e nessas ocasiões a API já assinala MainPhoto)
+          this.authService.changeMemberPhoto(photo.url);
+          this.authService.currentUser.photoUrl = photo.url;
+          localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
+        }
       }
     };
   }
