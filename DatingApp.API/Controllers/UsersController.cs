@@ -35,13 +35,37 @@ namespace DatingApp.API.Controllers
         
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery] UserParams userParams) // Atenção, o HttpGet não recebe informação em Body, preciso informar [FromQuery]
         {
-            var users = await _repo.GetUsers();
-            // return Ok(users); // PROBLEMA! Isso retornará os objetos com SENHAS e outras coisas que não quero visíveis,
-                                 // por isso mapearemos para um Dto só com aquilo que desejamos
+            // [FromQuery] Quer dize que os parâmentros vem na linha de endereço. O ASP vai reconhecê-los.
+            // Aparentemente o objeto userParams é criado (daí a importância dos valores padrão)
+            // e as proprieddes encontradas serão atribuídas (independente do case)
+            // exemplo: http://localhost:5000/api/users?PageNumber=2&pAGeSize=3
+
+
+            // Obter id do usuário atual para eliminá-lo da lista de usuários retornador ("filter out")
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            userParams.UserId = currentUserId;
+
+            // Obter usuário para obter gênero. Verifico se já foi especificado um gênero para filtragem no 
+            // userParams que está vindo do SPA, senão defino o gênero oposto do usuário atual
+            var userFromRepo = await _repo.GetUser(currentUserId);
+            if (string.IsNullOrEmpty(userParams.Gender))
+            {
+                userParams.Gender = userFromRepo.Gender == "male" ? "female" : "male"; 
+            }            
+
+            // Solicito a lista de usuários ao repositório. Filtragem será feita lá usando os userParams fornecidos
+            var users = await _repo.GetUsers(userParams); // Obtenho usuários dentro de uma página (aula 140)
+                // return Ok(users); // PROBLEMA! Isso retornará os objetos com SENHAS e outras coisas que não quero visíveis,
+                                     // por isso mapearemos para um Dto só com aquilo que desejamos
             var usersToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users); // Dto mais básico, para listagem de vários users
-            return Ok(usersToReturn);
+
+            // Incluo informações de paginaçãço na resposta usando extensão (ver Extensions.cs)
+            Response.AddPagination(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages);
+
+            // Notar que informações de paginação estão no HEADER (inseridas acima) e os dados estão no BODY (abaixo)
+            return Ok(usersToReturn);  
         }
 
 

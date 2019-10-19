@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +30,20 @@ namespace DatingApp.API.Helpers
             if (date.AddYears(age) > DateTime.Today)   // se data + anos > data atual é pq ainda não fez aniversário este ano ;-)
                 age--;
             return age;
+        }
+
+
+        // Auxiliar para adicionar header com informações de paginação nas respostas http
+        public static void AddPagination(this HttpResponse response, int currentPage, int itemsPerPage, int totalItems, int totalPages)
+        {
+            var paginationHeader = new PaginationHeader(currentPage, itemsPerPage, totalItems, totalPages);
+            // response.Headers.Add("Pagination", JsonConvert.SerializeObject(paginationHeader)); 
+                // problema: por padrão, gera PascalCase (CurrentPage), e no Angular será aguardado camelCase (currentPage) 
+                // resolveremos com um formatador:
+            var camelCaseFormater = new JsonSerializerSettings();
+            camelCaseFormater.ContractResolver = new CamelCasePropertyNamesContractResolver(); // Kkkkk, nome ridículo de longo
+            response.Headers.Add("Pagination", JsonConvert.SerializeObject(paginationHeader, camelCaseFormater));
+            response.Headers.Add("Access-Control-Expose-Headers", "Pagination"); // para evitar erro de CORS
         }
 
     }
