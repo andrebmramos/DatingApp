@@ -102,6 +102,36 @@ namespace DatingApp.API.Controllers
             throw new Exception($"Atualização do usuário {id} falhou no servidor");
         }
 
+        [HttpPost("{id}/like/{recipientId}")]
+        public async Task<IActionResult> LikeUser(int id, int recipientId)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            // Checar se já tem curtida entre do "id" no "recipientId" 
+            var like = await _repo.GetLike(id, recipientId);
+            if (like != null)
+                return BadRequest("Você já curtiu esse usuário");
+
+            // Checar que recipient existe
+            if (await _repo.GetUser(recipientId) == null)
+                return NotFound();
+
+            // Tudo ok, preparo like e adiciono
+            like = new Like
+            {
+                LikerId = id,
+                LikeeId = recipientId
+            };
+            _repo.Add<Like>(like);
+            if (await _repo.SaveAll())
+                return Ok();
+
+            // Erro...
+            return BadRequest("Falha ao curtir");
+
+        }
+
     }
 
 }
