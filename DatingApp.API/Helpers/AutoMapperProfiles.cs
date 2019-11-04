@@ -47,6 +47,13 @@ namespace DatingApp.API.Helpers
             CreateMap<PhotoForCreationDto, Photo>();
 
 
+            // Mensagens, aula 160
+
+            CreateMap<MessageForCreationDto, Message>().ReverseMap(); // ReverseMap "aproveita" e já gera o mapa reverso
+
+            CreateMap<Message, MessageToReturnDto>()
+                .ForMember(m => m.SenderPhotoUrl, opt => opt.MapFrom(m => m.Sender.Photos.FirstOrDefault(p => p.IsMain).Url))
+                .ForMember(m => m.RecipientPhotoUrl, opt => opt.MapFrom(m => m.Recipient.Photos.FirstOrDefault(p => p.IsMain).Url));
 
         }
 

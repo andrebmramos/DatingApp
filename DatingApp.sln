@@ -5,6 +5,27 @@ VisualStudioVersion = 16.0.29001.49
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatingApp.API", "DatingApp.API\DatingApp.API.csproj", "{454B7177-0711-43E0-A8D0-D3A8215E53CD}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "DatingApp-SPA", "DatingApp-SPA\", "{39A49EB5-713C-4E07-BB28-589167A72277}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_65450"
+		Debug.AspNetCompiler.PhysicalPath = "DatingApp-SPA\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_65450\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_65450"
+		Release.AspNetCompiler.PhysicalPath = "DatingApp-SPA\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_65450\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "65450"
+		SlnRelativePath = "DatingApp-SPA\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +36,10 @@ Global
 		{454B7177-0711-43E0-A8D0-D3A8215E53CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{454B7177-0711-43E0-A8D0-D3A8215E53CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{454B7177-0711-43E0-A8D0-D3A8215E53CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39A49EB5-713C-4E07-BB28-589167A72277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A49EB5-713C-4E07-BB28-589167A72277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A49EB5-713C-4E07-BB28-589167A72277}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A49EB5-713C-4E07-BB28-589167A72277}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
