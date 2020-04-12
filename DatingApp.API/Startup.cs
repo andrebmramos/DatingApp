@@ -98,7 +98,7 @@ namespace DatingApp.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Seed seeder)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env /*, Seed seeder*/)
         {
             if (env.IsDevelopment())
             {
@@ -131,10 +131,9 @@ namespace DatingApp.API
             }
 
             // app.UseHttpsRedirection();
-            // seeder.SeedUsers(); // Rodar "só quando necessário"
+            // seeder.SeedUsers(); // Rodar "só quando necessário" // movido para Program.cs, Main
                         
             app.UseRouting();
-
 
             app.UseAuthentication(); // Controllers com atributo [Authorize] agora terão autenticação
             app.UseAuthorization();  // Necssário! ATENÇÃO PARA ORDEM! Primeiro autentica, depois autoriza          
