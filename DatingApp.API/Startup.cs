@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using DatingApp.API.Helpers;
 using AutoMapper;
+using Microsoft.Extensions.Hosting;
 
 namespace DatingApp.API
 {
@@ -40,18 +41,25 @@ namespace DatingApp.API
         {
             services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddMvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                    .AddJsonOptions(opt =>
-                    {
-                        opt.SerializerSettings.ReferenceLoopHandling =
+            services.AddControllers()
+                .AddNewtonsoftJson(opt => 
+                {
+                    opt.SerializerSettings.ReferenceLoopHandling =
                             Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                    });  // Sobre AddJsonOptions: Aula 74, Seção 8: Extending the API, aproximadamente aos 8 
-                         // minutos explica que o fato de termos a propriedade de navegação user dentro da 
-                         // foto do user causa self referencing loop. A função GetUsers de UsersController
-                         // retorna "ok", porém o conteúdo vem com erro. Por isso fizemos essa configuração,
-                         // de modo ignorar a recorrência (VER ERRO NO TERMINAL da API)
-                         // PArece que haverá tratamento melhor disso adiante
+                });
+            // Bloco como era no dotnet 2.2
+            // services.AddMvc()
+            //        .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            //        .AddJsonOptions(opt =>
+            //        {
+            //            opt.SerializerSettings.ReferenceLoopHandling =
+            //                Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            //        });  // Sobre AddJsonOptions: Aula 74, Seção 8: Extending the API, aproximadamente aos 8 
+            //             // minutos explica que o fato de termos a propriedade de navegação user dentro da 
+            //             // foto do user causa self referencing loop. A função GetUsers de UsersController
+            //             // retorna "ok", porém o conteúdo vem com erro. Por isso fizemos essa configuração,
+            //             // de modo ignorar a recorrência (VER ERRO NO TERMINAL da API)
+            //             // Parece que haverá tratamento melhor disso adiante
 
             services.AddCors();
 
@@ -90,7 +98,7 @@ namespace DatingApp.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Seed seeder)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Seed seeder)
         {
             if (env.IsDevelopment())
             {
@@ -124,9 +132,26 @@ namespace DatingApp.API
 
             // app.UseHttpsRedirection();
             // seeder.SeedUsers(); // Rodar "só quando necessário"
-            app.UseCors(action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); // Política para "permitir recursos de localhost:4200 e 5000 conversarem"
+                        
+            app.UseRouting();
+
+
             app.UseAuthentication(); // Controllers com atributo [Authorize] agora terão autenticação
-            app.UseMvc(); // Framework que usamos
+            app.UseAuthorization();  // Necssário! ATENÇÃO PARA ORDEM! Primeiro autentica, depois autoriza          
+
+            app.UseCors(action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); // Política para "permitir recursos de localhost:4200 e 5000 conversarem"
+
+            app.UseDefaultFiles();
+
+            app.UseStaticFiles();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                // endpoints.MapFallbackToController("Index", "Fallback");
+            });
+
+            // app.UseMvc(); // Obsoleto em dotnet 3, substituído por endpoints
         }
     }
 }

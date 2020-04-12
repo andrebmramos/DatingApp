@@ -120,7 +120,7 @@ namespace DatingApp.API.Controllers
                 var photoToReturn = _mapper.Map<PhotoForReturnDto>(photo); // notar que a photo só tem id depois de salva no banco
                 // return Ok(); // Preciso retornar uma rota para a própria foto, de modo poder mandar uma resposta
                                 // útil para o cliente
-                return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToReturn);
+                return CreatedAtRoute("GetPhoto", new { userId, id = photo.Id }, photoToReturn); // Complementado com userId ao migrar para dotnet 3
             }
 
             return BadRequest("Could not add the photo");
