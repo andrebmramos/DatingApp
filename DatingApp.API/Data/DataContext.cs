@@ -25,7 +25,7 @@ namespace DatingApp.API.Data
             builder.Entity<Like>()
                 .HasKey(key => new {key.LikerId, key.LikeeId });
 
-            // 1 Nota <=> N Detalhes 
+            // Likes N para N
             builder.Entity<Like>()
                 .HasOne(like => like.Likee)
                 .WithMany(user => user.Likers)
@@ -38,6 +38,7 @@ namespace DatingApp.API.Data
                 .HasForeignKey(user => user.LikerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Messages N para N
             builder.Entity<Message>()
                 .HasOne(m => m.Sender)
                 .WithMany(user => user.MessagesSent)

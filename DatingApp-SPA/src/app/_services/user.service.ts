@@ -91,8 +91,16 @@ export class UserService {
     return this.http.delete(this.baseUrl + 'users/' + userId + '/photos/' + id);
   }
 
+  alreadyLikeUser(id: number, recipientId: number): Observable<boolean> {
+    return this.http.get<boolean>(this.baseUrl + 'users/' + id + '/alreadylike/' + recipientId, {});
+  }
+
   sendLike(id: number, recipientId: number) {
     return this.http.post(this.baseUrl + 'users/' + id + '/like/' + recipientId, {});
+  }
+
+  sendDisLike(id: number, recipientId: number) {
+    return this.http.post(this.baseUrl + 'users/' + id + '/dislike/' + recipientId, {});
   }
 
   getMessages(id: number, page?, itemsPerPage?, messageContainer?) {

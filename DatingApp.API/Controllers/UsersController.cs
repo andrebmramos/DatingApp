@@ -132,6 +132,44 @@ namespace DatingApp.API.Controllers
 
         }
 
+
+        [HttpPost("{id}/dislike/{recipientId}")]
+        public async Task<IActionResult> DisLikeUser(int id, int recipientId)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            // Checar se já tem curtida entre do "id" no "recipientId" 
+            var like = await _repo.GetLike(id, recipientId);
+            if (like == null)
+                return BadRequest("Você não tinha curtido esse usuário");
+
+
+            _repo.Delete<Like>(like);
+
+            if (await _repo.SaveAll())
+                return Ok();
+
+            // Erro...
+            return BadRequest("Falha ao descurtir");
+
+        }
+
+
+        [HttpGet("{id}/alreadylike/{recipientId}")]
+        public async Task<IActionResult> AlreadyLikeUser(int id, int recipientId)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            // Checar se já tem curtida entre do "id" no "recipientId" 
+            var like = await _repo.GetLike(id, recipientId);
+            if (like != null)
+                return Ok(true);
+            else
+                return Ok(false);
+        }
+
     }
 
 }
