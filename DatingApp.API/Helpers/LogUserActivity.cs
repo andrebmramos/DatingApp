@@ -14,14 +14,24 @@ namespace DatingApp.API.Helpers
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var resultContext = await next(); // Ou seja, ação concluída
+            // Context (não usamos) permite atuar durante execução da ação; Next permite atuar ao término da execução (aguardar)
+            var resultContext = await next(); 
 
+            // Apenas para monitoramento
+            // Console.WriteLine($"$$$$$ concluída ação no Controller: {resultContext.Controller}, Rota: {resultContext.ActionDescriptor.DisplayName}");
+
+            // Obter o Id (extraído da Claim que está no User que está no HttpContext que pode ser obtido do resultContext)
             var userId = int.Parse(resultContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var repo = (IDatingRepository)resultContext.HttpContext.RequestServices.GetService(typeof(IDatingRepository)); // Jeito de obter o repositório
+            // Obter o repositório, mais ou menos pelo mesmo caminho (resultContext nos dá o HttpContext que permite buscar o serviço)
+            var repo = (IDatingRepository)resultContext.HttpContext.RequestServices.GetService(typeof(IDatingRepository));
+            // Tendo repositório e id, obtenho o usuário
             var user = await repo.GetUser(userId);
+            // Ajusto o campo LastActive
             user.LastActive = DateTime.Now;
+            // Salvo
             await repo.SaveAll();
         }
+
     }
 
 }
