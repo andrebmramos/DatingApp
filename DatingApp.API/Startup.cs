@@ -46,18 +46,18 @@ namespace DatingApp.API
         public void ConfigureProductionServices(IServiceCollection services)
         {
             // MySQL
-            services.AddDbContext<DataContext>(ops =>
-            {
-                ops.UseMySql(Configuration.GetConnectionString("MySQLConnection"));
-                ops.UseLazyLoadingProxies();
-            });
+            // services.AddDbContext<DataContext>(ops =>
+            // {
+            //     ops.UseMySql(Configuration.GetConnectionString("MySQLConnection"));
+            //     ops.UseLazyLoadingProxies();
+            // });
 
             // SQL Server
-             //services.AddDbContext<DataContext>(ops => 
-             //{
-             //    ops.UseSqlServer(Configuration.GetConnectionString("SQLServerConnection"));
-             //    ops.UseLazyLoadingProxies();
-             //});
+            services.AddDbContext<DataContext>(ops => 
+            {
+                ops.UseSqlServer(Configuration.GetConnectionString("SQLServerConnection"));
+                ops.UseLazyLoadingProxies();
+            });
 
             ConfigureServices(services);
         }
@@ -142,11 +142,14 @@ namespace DatingApp.API
                 // Por outro lado, try catch em todos os lugares não é legal.
                 // Então procedemos de outra forma criando um handler global para os erros
                 // com algumas configurações convenientes
-                app.UseExceptionHandler(builder => { // builder : IApplicationBuilder
+
+                // Comentado PROVISORIAMENTE na aula 191 ao publicar no Azure
+                // Visto que não há problçemas, descomentamos novamente
+                app.UseExceptionHandler(builder =>
+                { // builder : IApplicationBuilder
                     builder.Run(async context =>     // Run é extension method, vem de Microsoft.AspNetCore.Builder
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; // System.Net
-
                         var error = context.Features.Get<IExceptionHandlerFeature>(); // Microsoft.AspNetCore.Dignostics
                         if (error != null)
                         {
@@ -157,12 +160,15 @@ namespace DatingApp.API
                 });
 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                // app.UseHsts();
+                app.UseHsts(); // Descomentado na aula 191, ao publicar no Azure
             }
 
-            // app.UseHttpsRedirection();
-            // seeder.SeedUsers(); // Rodar "só quando necessário" // movido para Program.cs, Main
-                        
+            app.UseHttpsRedirection(); // Descomentado na aula 191, ao publicar no Azure
+
+            // Atenção: trazendo PROVISORIAMENTE a página de exceção para todos os casos na ocasião de implantação no Azure (aula 191)
+            // pois é mais amigável para tratar exceções no  Azure. Visto que não há problçemas, comentamos novamente
+            // app.UseDeveloperExceptionPage();
+
             app.UseRouting();
 
             app.UseAuthentication(); // Controllers com atributo [Authorize] agora terão autenticação
