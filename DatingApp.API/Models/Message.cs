@@ -16,8 +16,8 @@ namespace DatingApp.API.Models
 
 
         // Navigation
-        public User Sender { get; set; }
-        public User Recipient { get; set; }
+        public virtual User Sender { get; set; }
+        public virtual User Recipient { get; set; }
 
 
         // Outras...

@@ -8,7 +8,7 @@ export interface User {
     age: number;
     gender: string;
     created: Date;
-    lastActive: Date;
+    lastActive: any;  // Era date, mas, na hora de compilar "produção", deu erro no pipe " | timeAgo", que espera receber string. 
     photoUrl: string;
     city: string;
     country: string;

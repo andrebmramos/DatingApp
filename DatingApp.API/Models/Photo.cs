@@ -12,7 +12,7 @@ namespace DatingApp.API.Models
         public string PublicId { get; set; } // isso é informado pelo Cloudinary ao fazer upload da foto
 
         // Navegação
-        public User User { get; set; }
+        public virtual User User { get; set; }
         public int UserId { get; set; }
 
 

@@ -91,8 +91,22 @@ export class UserService {
     return this.http.delete(this.baseUrl + 'users/' + userId + '/photos/' + id);
   }
 
-  alreadyLikeUser(id: number, recipientId: number): Observable<boolean> {
-    return this.http.get<boolean>(this.baseUrl + 'users/' + id + '/alreadylike/' + recipientId, {});
+  alreadyLikeUser(id: number, recipientId: number): boolean {
+    //this.http.get(this.baseUrl + 'users/' + id + '/alreadylike/' + recipientId, { observe: 'response' })
+    //  .subscribe(response => console.log(response));
+    
+    return false;
+
+    // sinceramente não estou conseguindo implementar essa bosta
+    this.http.get<boolean>(this.baseUrl + 'users/' + id + '/alreadylike/' + recipientId, { observe: 'response' })
+      .pipe(
+        map(response => {
+          console.log('$$$$$ Lido: ' + response.body);
+          return response.body;
+        })
+      );
+    console.log('$$$$$ Passou batido pelo map');
+    return false;
   }
 
   sendLike(id: number, recipientId: number) {

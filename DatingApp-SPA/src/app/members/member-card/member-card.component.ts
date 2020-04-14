@@ -19,9 +19,7 @@ export class MemberCardComponent implements OnInit {
 
 
   alreadyLikeUser(id: number): boolean {
-      let ret: boolean;
-      this.userService.alreadyLikeUser(this.auth.decodedToken.nameid, id).subscribe(res => ret = res);
-      return ret;
+      return this.userService.alreadyLikeUser(this.auth.decodedToken.nameid, id);      
   }
 
 

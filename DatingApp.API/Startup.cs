@@ -36,10 +36,40 @@ namespace DatingApp.API
 
         public IConfiguration Configuration { get; }
 
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(ops => 
+                ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            // MySQL
+            services.AddDbContext<DataContext>(ops =>
+            {
+                ops.UseMySql(Configuration.GetConnectionString("MySQLConnection"));
+                ops.UseLazyLoadingProxies();
+            });
+
+            // SQL Server
+             //services.AddDbContext<DataContext>(ops => 
+             //{
+             //    ops.UseSqlServer(Configuration.GetConnectionString("SQLServerConnection"));
+             //    ops.UseLazyLoadingProxies();
+             //});
+
+            ConfigureServices(services);
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            // Agora o contexto e provedor são ajustados nas funções acima, ConfigureDevelopmentServices e ConfigureProductionServices,
+            // que são chamadas conforme selecionamos Prod. ou Dev. no arquivo launchSettings.json (pasta Properties). Ao fim dessas
+            // funções, a execução passa para cá (ConfigureServices)
+            // services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
 
             services.AddControllers()
                 .AddNewtonsoftJson(opt => 
@@ -147,7 +177,7 @@ namespace DatingApp.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                // endpoints.MapFallbackToController("Index", "Fallback");
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
 
             // app.UseMvc(); // Obsoleto em dotnet 3, substituído por endpoints

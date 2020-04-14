@@ -10,6 +10,9 @@ namespace DatingApp.API.Data
 {
     public class DatingRepository : IDatingRepository
     {
+        // ATENÇÃO: na aula 185 optou-se por ativar o Lazy Loading, e, com isso,
+        // comentamos todos os "includes", que tornaram-se desnecessários        
+
         private readonly DataContext _context;
 
         public DatingRepository(DataContext context)
@@ -29,7 +32,8 @@ namespace DatingApp.API.Data
 
         public async Task<User> GetUser(int id)
         {
-            return await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(u => u.Id == id);
+            // return await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<Photo> GetPhoto(int id)
@@ -47,9 +51,8 @@ namespace DatingApp.API.Data
 
         public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            // return await _context.Users.Include(u => u.Photos).ToListAsync(); // Original, antes de paginação (retornava Task<User>)
             var users = _context.Users
-                .Include(u => u.Photos)
+                // .Include(u => u.Photos)
                 .OrderByDescending(u => u.LastActive) // ordem padrão
                 .AsQueryable(); // deferred execution a ser feita adiante: retiro o async e o ToListAsync()
 
@@ -103,8 +106,8 @@ namespace DatingApp.API.Data
         {
             // Carregar o usuário com a respecitvas listas de quem ele gostou e de quem gostou dele
             var user = await _context.Users
-                .Include(u => u.Likees)
-                .Include(u => u.Likers)
+                // .Include(u => u.Likees)
+                // .Include(u => u.Likers)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             // Retorna os usuários que curtiram o usuário "id"
@@ -143,8 +146,8 @@ namespace DatingApp.API.Data
         public async Task<PagedList<Message>> GetMessagesForUser(MessageParams messageParams)
         {
             var messages = _context.Messages
-                .Include(user => user.Sender).ThenInclude(user => user.Photos)
-                .Include(user => user.Recipient).ThenInclude(user => user.Photos)
+                // .Include(user => user.Sender).ThenInclude(user => user.Photos)
+                // .Include(user => user.Recipient).ThenInclude(user => user.Photos)
                 .AsQueryable();
 
             switch (messageParams.MessageContainer)
@@ -168,8 +171,8 @@ namespace DatingApp.API.Data
         public async Task<IEnumerable<Message>> GetMessageThread(int userId, int recipientId)
         {
             var messages = await _context.Messages
-                .Include(user => user.Sender).ThenInclude(user => user.Photos)
-                .Include(user => user.Recipient).ThenInclude(user => user.Photos)
+                // .Include(user => user.Sender).ThenInclude(user => user.Photos)
+                // .Include(user => user.Recipient).ThenInclude(user => user.Photos)
                 .Where(m => m.RecipientId == userId && m.RecipientDeleted == false &&  m.SenderId == recipientId
                     || m.RecipientId == recipientId && m.SenderDeleted == false && m.SenderId == userId)
                 .OrderByDescending(m => m.MessageSent)
