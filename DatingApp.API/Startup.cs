@@ -38,8 +38,10 @@ namespace DatingApp.API
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(ops => 
-                ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<DataContext>(ops => {
+                ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                ops.UseLazyLoadingProxies();
+            });
             ConfigureServices(services);
         }
 
@@ -52,8 +54,15 @@ namespace DatingApp.API
             //     ops.UseLazyLoadingProxies();
             // });
 
+            // SQL Server no Azure (configurar Connection Strings no App com Type SQLAzure)
+            // services.AddDbContext<DataContext>(ops =>
+            // {
+            //     ops.UseSqlServer(Configuration.GetConnectionString("SQLServerConnectionAzure"));
+            //     ops.UseLazyLoadingProxies();
+            // });
+
             // SQL Server
-            services.AddDbContext<DataContext>(ops => 
+            services.AddDbContext<DataContext>(ops =>
             {
                 ops.UseSqlServer(Configuration.GetConnectionString("SQLServerConnection"));
                 ops.UseLazyLoadingProxies();
