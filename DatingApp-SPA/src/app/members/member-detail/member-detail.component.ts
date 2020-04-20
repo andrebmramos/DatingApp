@@ -5,6 +5,7 @@ import { AlertifyService } from 'src/app/_services/alertify.service';
 import { ActivatedRoute } from '@angular/router';
 import { NgxGalleryOptions, NgxGalleryImage, NgxGalleryAnimation } from 'ngx-gallery';
 import { TabsetComponent } from 'ngx-bootstrap';
+import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
   selector: 'app-member-detail',
@@ -16,7 +17,8 @@ export class MemberDetailComponent implements OnInit {
   // Angular V8 : @ViewChild('memberTabs', {static: true}) memberTabs: TabsetComponent;
   user: User;
 
-  constructor(private userService: UserService, private alertify: AlertifyService, private route: ActivatedRoute) { }
+  constructor(private userService: UserService, private alertify: AlertifyService, 
+    private route: ActivatedRoute, private auth: AuthService) { }
 
   // Sobre uso da galeria, ver usage em https://www.npmjs.com/package/ngx-gallery
   galleryOptions: NgxGalleryOptions[];
@@ -49,6 +51,15 @@ export class MemberDetailComponent implements OnInit {
 
     this.galleryImages = this.getImages();
 
+  }
+
+  sendLike(id: number) {
+    this.userService.sendLike(this.auth.decodedToken.nameid, id).subscribe( ok => {
+      this.alertify.success('Curtiu ' + this.user.knownAs);
+    }, error => {
+      this.alertify.error(error);
+      console.log(error);
+    });
   }
 
   getImages(): any {
