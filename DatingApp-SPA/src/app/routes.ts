@@ -12,6 +12,7 @@ import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { ListsResolver } from './_resolvers/lists.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 
  // Roteamento, aula 61 cria este arquivo, depois vai incrementando
 export const appRoute: Routes = [
@@ -35,6 +36,8 @@ export const appRoute: Routes = [
                                 resolve: {messages: MessagesResolver}},
 
             { path: 'lists', component: ListsComponent, resolve: { usersFromRoute: ListsResolver } },
+
+            { path: 'admin', component: AdminPanelComponent, data: { roles: [ 'Admin', 'Moderator'] } },
         ]
     },
     /*

@@ -1,4 +1,6 @@
 ﻿using DatingApp.API.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,10 +9,12 @@ using System.Threading.Tasks;
 
 namespace DatingApp.API.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User, Role, int, 
+        IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>,
+        IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
+        // public DbSet<User> Users { get; set; } // Identity assume
         public DbSet<Value> Values { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -21,6 +25,25 @@ namespace DatingApp.API.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // aula 199 (Seção Identity)
+            base.OnModelCreating(builder);
+
+            builder.Entity<UserRole>(ur =>
+            {
+                ur.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+                ur.HasOne(ur => ur.Role)
+                    .WithMany(ur => ur.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId)
+                    .IsRequired();
+
+                ur.HasOne(ur => ur.User)
+                    .WithMany(ur => ur.UserRoles)
+                    .HasForeignKey(ur => ur.UserId)
+                    .IsRequired();
+            });
+            // fim da aula 199 (Seção Identity)
+
             // Chave
             builder.Entity<Like>()
                 .HasKey(key => new {key.LikerId, key.LikeeId });

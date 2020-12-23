@@ -17,7 +17,6 @@ namespace DatingApp.API.Controllers
 
     
     [ServiceFilter(typeof(LogUserActivity))] // Aula 135, toda vez que os métodos são usados o filtro será chamado atualizando LastActive
-    [Authorize]
     [ApiController]
     [Route("api/users/{userId}/[controller]")]    
     public class MessagesController : ControllerBase

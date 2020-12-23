@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 namespace DatingApp.Controllers
 {
     // http://localhost:5000/api/values
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase // Controler tem view support; "Base" não, e faremos assim pq as ViewResult virão do Angular
@@ -23,7 +22,7 @@ namespace DatingApp.Controllers
         }
 
         // GET api/values
-        [AllowAnonymous] // Elimina necessidade de autenticação!
+        [Authorize(Roles = "Admin, Moderatator")] // Elimina necessidade de autenticação!
         [HttpGet]        
         public async Task<IActionResult> GetValues()  // //public ActionResult<IEnumerable<string>> Get()
         {
@@ -32,7 +31,7 @@ namespace DatingApp.Controllers
         }
 
         // GET api/values/5
-        [AllowAnonymous] // Elimina necessidade de autenticação!
+        [Authorize(Roles = "Member")] // Elimina necessidade de autenticação!
         [HttpGet("{id}")]
         public async Task<IActionResult> GetValue(int id)
         {

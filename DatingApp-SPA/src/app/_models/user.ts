@@ -3,7 +3,7 @@ import { Photo } from './photo';
 export interface User {
     // Análogo do UserForListDto
     id: number;
-    username: string;
+    userName: string;
     knownAs: string;
     age: number;
     gender: string;
@@ -18,6 +18,8 @@ export interface User {
     introduction?: string;
     lookingFor?: string;
     photos?: Photo[];
-    password?: string; // auxiliar para uso em funcionalidade Register (preciso fornecer senha)
+    roles?: string[];
+
+    password?: string; // [noto que está ausente na aula 213] auxiliar para uso em funcionalidade Register (preciso fornecer senha)
 
 }

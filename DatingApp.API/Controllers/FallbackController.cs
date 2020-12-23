@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers
 {
+    [AllowAnonymous]
     public class FallbackController : Controller
         // Aula 179, preparando para produção / publicação
         // O que fizemos foi compilar o Angular para a pasta wwwroot e habilitar 

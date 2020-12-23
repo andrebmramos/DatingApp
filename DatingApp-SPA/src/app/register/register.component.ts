@@ -81,7 +81,7 @@ export class RegisterComponent implements OnInit {
           this.alertify.error(error);
         }, () => {
           // Aproveitar para fazer o login
-          this.authService.login({ username: this.user.username, password: this.user.password }).subscribe(() => {
+          this.authService.login({ username: this.user.userName, password: this.user.password }).subscribe(() => {
             this.router.navigate(['/members']);
           });
       });

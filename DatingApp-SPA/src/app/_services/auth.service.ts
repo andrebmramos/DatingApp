@@ -18,7 +18,7 @@ export class AuthService {
   // decodedToken: any; // Melhorei com interface
 
   // Esses são atalhos para "coisas" que quero enxergar de outros pontos da aplicação
-  decodedToken: DecodedToken;
+  decodedToken: any; // DecodedToken;
   currentUser: User;
 
   // Any to any communication fazedno uso do BehaviorSubject,que é um cara que pode tanto
@@ -64,5 +64,17 @@ export class AuthService {
     const token = localStorage.getItem('token');
     return !this.jwtHelper.isTokenExpired(token);
   }
+
+  roleMatch(allowedRoles): boolean {
+    let isMatch = false;
+    const userRoles = this.decodedToken.role;   // as Array<string>; // POR ALGUM MOTIVO, se eu trocar o nome para roles (ou qualquer outro) deixa de funcionar
+    allowedRoles.forEach(element => {
+      if (userRoles.includes(element)) {
+        isMatch = true;
+        return;
+      }
+    });
+    return isMatch;
+  } 
 
 }

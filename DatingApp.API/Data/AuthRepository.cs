@@ -4,6 +4,18 @@ using System.Threading.Tasks;
 using DatingApp.API.Models;
 using Microsoft.EntityFrameworkCore;
 
+
+
+// 
+// 
+// TODA FUNCIONALIDADE DESSA CLASSE REMOVIDA
+// quando passamos a usar Identity. O que é feito aqui
+// pass a ser assunido por classes como UserManager e SignInManager
+// aula 204
+//
+//
+
+
 namespace DatingApp.API.Data
 {
     public class AuthRepository : IAuthRepository
@@ -23,15 +35,15 @@ namespace DatingApp.API.Data
             // do controlador [AuthController] vai lidar com Tokens
             var user = await _context.Users
                 .Include(u => u.Photos)
-                .FirstOrDefaultAsync(us => us.Username==username);
+                .FirstOrDefaultAsync(us => us.UserName==username);
 
             // Teste para usuário não encontrado
             if (user == null) 
                 return null; // Controller entenderá null como erro 401 Unauthorized
 
             // Testa da senha
-            if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt)==false)
-                return null; // sem detalhes!
+            //if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt)==false)
+            //    return null; // sem detalhes!
             
             // Tudo válido!
             return user;     
@@ -56,8 +68,8 @@ namespace DatingApp.API.Data
             byte[] passwordHash, passwordSalt;
 
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
-            user.PasswordHash = passwordHash; // guardo o hash da senha
-            user.PasswordSalt = passwordSalt; // guardo a semente aleatória como salt
+            //user.PasswordHash = passwordHash; // guardo o hash da senha
+            //user.PasswordSalt = passwordSalt; // guardo a semente aleatória como salt
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -77,7 +89,7 @@ namespace DatingApp.API.Data
 
         public async Task<bool> UserExists(string username)
         {
-            if (await _context.Users.AnyAsync(us => us.Username.Equals(username)))
+            if (await _context.Users.AnyAsync(us => us.UserName.Equals(username)))
                 return true;
             else
                 return false;

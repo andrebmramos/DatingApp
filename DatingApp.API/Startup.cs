@@ -24,6 +24,10 @@ using Microsoft.AspNetCore.Http;
 using DatingApp.API.Helpers;
 using AutoMapper;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
+using DatingApp.API.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace DatingApp.API
 {
@@ -74,31 +78,72 @@ namespace DatingApp.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             // Agora o contexto e provedor são ajustados nas funções acima, ConfigureDevelopmentServices e ConfigureProductionServices,
             // que são chamadas conforme selecionamos Prod. ou Dev. no arquivo launchSettings.json (pasta Properties). Ao fim dessas
             // funções, a execução passa para cá (ConfigureServices)
-            // services.AddDbContext<DataContext>(ops => ops.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
 
-            services.AddControllers()
+            // aula 200, Identity
+            IdentityBuilder builder = services.AddIdentityCore<User>(opt =>
+            {
+                // Uma série de facilitações de senha NÃO RECOMENDADAS para production
+                opt.Password.RequireDigit = false;
+                opt.Password.RequiredLength = 4;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
+            });
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+            builder.AddEntityFrameworkStores<DataContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
+            // Só para manter autenticação junto, trago esse código que estava mais abaixo
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Habilitar Authentication Middleware (Aula 34, sec. 3, Using the Authentication middleware)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                            ValidateIssuer = false,  // localhost
+                            ValidateAudience = false // localhost
+                        };
+                    });
+            // Agora políticas de autorização
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                opt.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+                opt.AddPolicy("VipOnly", policy => policy.RequireRole("VIP"));
+            });
+
+            services.AddControllers(opt =>
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    opt.Filters.Add(new AuthorizeFilter(policy));
+                })
                 .AddNewtonsoftJson(opt => 
                 {
                     opt.SerializerSettings.ReferenceLoopHandling =
                             Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
-            // Bloco como era no dotnet 2.2
-            // services.AddMvc()
-            //        .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-            //        .AddJsonOptions(opt =>
-            //        {
-            //            opt.SerializerSettings.ReferenceLoopHandling =
-            //                Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            //        });  // Sobre AddJsonOptions: Aula 74, Seção 8: Extending the API, aproximadamente aos 8 
-            //             // minutos explica que o fato de termos a propriedade de navegação user dentro da 
-            //             // foto do user causa self referencing loop. A função GetUsers de UsersController
-            //             // retorna "ok", porém o conteúdo vem com erro. Por isso fizemos essa configuração,
-            //             // de modo ignorar a recorrência (VER ERRO NO TERMINAL da API)
-            //             // Parece que haverá tratamento melhor disso adiante
+                // Bloco como era no dotnet 2.2 em a parte do AuthorizationPolicyBuilder
+                // services.AddMvc()
+                //        .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                //        .AddJsonOptions(opt =>
+                //        {
+                //            opt.SerializerSettings.ReferenceLoopHandling =
+                //                Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                //        });  // Sobre AddJsonOptions: Aula 74, Seção 8: Extending the API, aproximadamente aos 8 
+                //             // minutos explica que o fato de termos a propriedade de navegação user dentro da 
+                //             // foto do user causa self referencing loop. A função GetUsers de UsersController
+                //             // retorna "ok", porém o conteúdo vem com erro. Por isso fizemos essa configuração,
+                //             // de modo ignorar a recorrência (VER ERRO NO TERMINAL da API)
+                //             // Parece que haverá tratamento melhor disso adiante
 
             services.AddCors();
 
@@ -116,22 +161,9 @@ namespace DatingApp.API
 
             services.AddTransient<Seed>();
 
-            services.AddScoped<IAuthRepository, AuthRepository>();
+            // services.AddScoped<IAuthRepository, AuthRepository>(); // Desuso ao implementar Identity
 
             services.AddScoped<IDatingRepository, DatingRepository>();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Habilitar Authentication Middleware (Aula 34, sec. 3, Using the Authentication middleware)
-                    .AddJwtBearer(options => 
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters 
-                        {
-                            ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey( Encoding.ASCII
-                                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
-                            ValidateIssuer = false,  // localhost
-                            ValidateAudience = false // localhost
-                        };
-                    });
 
             services.AddScoped<LogUserActivity>(); // Action Filter, será usado nos controllers (aula 135)
         }

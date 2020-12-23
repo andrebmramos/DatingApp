@@ -5,5 +5,6 @@ export interface DecodedToken {
     nbf: number;
     exp: number;
     iat: number;
+    role: Array<string>;
 
 }
